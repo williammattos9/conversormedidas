@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONVERSOR DE MEDIDAS</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-align: center; /* Centraliza o título */
+        }
+        .converter {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 5px #6200ea;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #bb86fc;
+        }
+        footer {
+            margin-top: auto;
+            font-size: 0.9em;
+            color: #b0b0b0;
+            padding: 20px 0;
+        }
+        .description {
+            font-size: 0.9em;
+            color: #b0b0b0;
+            text-align: center;
+            margin-top: 20px;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CONVERSOR DE MEDIDAS</h1>
+    <div class="converter">
+        <select id="measureType">
+            <option value="length">Comprimento</option>
+            <option value="weight">Peso</option>
+            <option value="speed">Velocidade</option>
+            <option value="area">Área</option>
+            <option value="volume">Volume</option>
+            <option value="temperature">Temperatura</option>
+        </select>
+        <input type="number" id="inputValue" placeholder="Digite o valor" oninput="convert()">
+        <select id="fromUnit"></select>
+        <select id="toUnit"></select>
+        <div id="result"></div>
+    </div>
+    <div class="description">Conversor para engenharia, ciência e mais.</div>
+    <footer>Desenvolvido por MAGníphik Design Studio</footer>
+
+    <script>
+        const units = {
+            length: {
+                'metros': 1,
+                'quilômetros': 1000,
+                'centímetros': 0.01,
+                'milímetros': 0.001,
+                'milhas': 1609.34,
+                'jardas': 0.9144,
+                'pés': 0.3048,
+                'polegadas': 0.0254
+            },
+            weight: {
+                'quilogramas': 1,
+                'gramas': 0.001,
+                'miligramas': 0.000001,
+                'libras': 0.453592,
+                'onças': 0.0283495,
+                'toneladas': 1000
+            },
+            speed: {
+                'm/s': 1,
+                'km/h': 0.277778,
+                'mph': 0.44704,
+                'nós': 0.514444
+            },
+            area: {
+                'metros quadrados': 1,
+                'quilômetros quadrados': 1000000,
+                'milhas quadradas': 2589988.11,
+                'jardas quadradas': 0.836127,
+                'pés quadrados': 0.092903,
+                'hectares': 10000,
+                'acres': 4046.86
+            },
+            volume: {
+                'litros': 1,
+                'mililitros': 0.001,
+                'metros cúbicos': 1000,
+                'centímetros cúbicos': 0.001,
+                'galões': 3.78541,
+                'quartos': 0.946353,
+                'pintos': 0.473176,
+                'onças fluidas': 0.0295735
+            },
+            temperature: {
+                'Celsius': (value) => value,
+                'Fahrenheit': (value) => (value * 9/5) + 32,
+                'Kelvin': (value) => value + 273.15
+            }
+        };
+
+        const measureType = document.getElementById('measureType');
+        const fromUnit = document.getElementById('fromUnit');
+        const toUnit = document.getElementById('toUnit');
+        const inputValue = document.getElementById('inputValue');
+        const result = document.getElementById('result');
+
+        function updateUnits() {
+            const type = measureType.value;
+            fromUnit.innerHTML = '';
+            toUnit.innerHTML = '';
+            for (let unit in units[type]) {
+                const option1 = document.createElement('option');
+                const option2 = document.createElement('option');
+                option1.value = unit;
+                option2.value = unit;
+                option1.text = unit;
+                option2.text = unit;
+                fromUnit.appendChild(option1);
+                toUnit.appendChild(option2);
+            }
+            convert();
+        }
+
+        function convert() {
+            const type = measureType.value;
+            const from = fromUnit.value;
+            const to = toUnit.value;
+            const value = parseFloat(inputValue.value);
+
+            if (isNaN(value)) {
+                result.textContent = '';
+                return;
+            }
+
+            let convertedValue;
+            if (type === 'temperature') {
+                let celsius;
+                if (from === 'Celsius') celsius = value;
+                else if (from === 'Fahrenheit') celsius = (value - 32) * 5/9;
+                else if (from === 'Kelvin') celsius = value - 273.15;
+                
+                convertedValue = units.temperature[to](celsius);
+            } else {
+                const baseValue = value * units[type][from];
+                convertedValue = baseValue / units[type][to];
+            }
+
+            result.textContent = `${value} ${from} = ${convertedValue.toFixed(4)} ${to}`;
+        }
+
+        measureType.addEventListener('change', updateUnits);
+        fromUnit.addEventListener('change', convert);
+        toUnit.addEventListener('change', convert);
+        updateUnits();
+    </script>
+</body>
+</html>
